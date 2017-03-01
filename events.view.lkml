@@ -215,10 +215,25 @@ view: events {
     type: sum
     sql: ${duration_row_level}*1.0/60;;
     value_format: "#0.00 \"Hrs\""
-    drill_fields: [company_name, title, start_time, attendees.count]
+    drill_fields: [company_name, title, start_time, end_time, total_duration, attendees.count]
     filters: {
       field: status
       value: "-cancelled"
+    }
+  }
+
+  measure: total_external_duration {
+    type: sum
+    sql: ${duration_row_level}*1.0/60;;
+    value_format: "#0.00 \"Hrs\""
+    drill_fields: [company_name, title, start_time, end_time, total_duration, attendees.count]
+    filters: {
+      field: status
+      value: "-cancelled"
+    }
+    filters: {
+      field: meeting_type
+      value: "-OOO,-Personal,-looker internal"
     }
   }
 
