@@ -7,7 +7,8 @@ view: attendees_filter {
         FROM
           public.attendees_d AD
         WHERE
-          {% condition attendees_filter.email %} AD.email {% endcondition %}
+          -- { % condition attendees_filter.email % } AD.email { % endcondition % }
+          {% condition attendees.email %} AD.email {% endcondition %}
       ;;
   }
 
@@ -19,8 +20,10 @@ view: attendees_filter {
   }
 
   filter: email {
+    hidden: yes
     type: string
     suggest_dimension: attendees.email
+    view_label: "Attendees"
   }
 
 }

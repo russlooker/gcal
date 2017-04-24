@@ -13,7 +13,7 @@ view: attendees {
 
   dimension: email {
     type: string
-    skip_drill_filter: yes
+    #skip_drill_filter: yes
     sql: ${TABLE}.email ;;
   }
 

@@ -1,4 +1,4 @@
-view: events {
+ view: events {
    sql_table_name: public.events_d ;;
 
   dimension: gcal_distinct_event_id {
@@ -129,6 +129,7 @@ view: events {
   }
 
   dimension: pulled_from {
+#     hidden: yes
     type: string
     sql: ${TABLE}.pulled_from ;;
   }
@@ -138,6 +139,12 @@ view: events {
     timeframes: [
       raw,
       time,
+      hour_of_day,
+      minute30,
+      week_of_year,
+      day_of_week,
+      day_of_month,
+      day_of_week_index,
       date,
       week,
       month,
@@ -168,7 +175,12 @@ view: events {
 
   dimension: title {
     type: string
-    sql: ${TABLE}.title ;;
+    sql:
+      CASE
+        WHEN ${is_external} OR ${meeting_type} = 'OOO' THEN ${TABLE}.title
+        ELSE '*****'
+      END
+          ;;
     link: {
       label: "Go to Calendar Event"
       url: "{{htmllink._value}}"
@@ -211,14 +223,41 @@ view: events {
     sql: ${TABLE}.visibility ;;
   }
 
+  dimension: creator {
+    type: string
+    sql: ${TABLE}.creator ;;
+  }
+
+  dimension: is_external {
+    type: yesno
+    sql:
+      CASE
+        WHEN ${meeting_type} = 'OOO' THEN 0
+        WHEN ${meeting_type} = 'Personal' THEN 0
+        WHEN ${meeting_type} = 'looker internal' THEN 0
+        ELSE 1
+      END
+      ;;
+  }
+
+  dimension_group: created {
+    type: time
+    timeframes: [raw, minute15,hour,hour_of_day,date,week,month,quarter,year]
+    sql: ${TABLE}.created ;;
+  }
+
   measure: total_duration {
     type: sum
     sql: ${duration_row_level}*1.0/60;;
     value_format: "#0.00 \"Hrs\""
-    drill_fields: [company_name, title, start_time, end_time, total_duration, attendees.count]
+    drill_fields: [company_name, title, meeting_type,start_time, end_time, total_duration]
     filters: {
       field: status
       value: "-cancelled"
+    }
+    filters: {
+      field: title
+      value: "-%CANCELLED%,-%CANCELED%"
     }
   }
 
@@ -226,20 +265,32 @@ view: events {
     type: sum
     sql: ${duration_row_level}*1.0/60;;
     value_format: "#0.00 \"Hrs\""
-    drill_fields: [company_name, title, start_time, end_time, total_duration, attendees.count]
+    drill_fields: [company_name, title, meeting_type, start_time, end_time, total_duration]
     filters: {
+      #exclude formal cancellations
       field: status
       value: "-cancelled"
     }
     filters: {
-      field: meeting_type
-      value: "-OOO,-Personal,-looker internal"
+      field: is_external
+      value: "yes"
+    }
+    filters: {
+      #exclude informal cancellations
+      field: title
+      value: "-%CANCELLED%,-%CANCELED%"
+    }
+    filters: {
+      #exclude all day events
+      field: duration_row_level
+      value: "<1440"
     }
   }
 
 
-  measure: count {
-    type: count
-    drill_fields: [gcal_distinct_event_id, company_name, title, attendees.count]
+  measure: event_count {
+    type: count_distinct
+    sql: ${gcal_distinct_event_id} ;;
+    drill_fields: [gcal_distinct_event_id, company_name, title, meeting_type, start_time, end_time, total_duration]
   }
 }
