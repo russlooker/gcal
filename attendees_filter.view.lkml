@@ -7,8 +7,20 @@ view: attendees_filter {
         FROM
           public.attendees_d AD
         WHERE
-          -- { % condition attendees_filter.email % } AD.email { % endcondition % }
-          {% condition attendees.email %} AD.email {% endcondition %}
+          1=1
+          AND {% condition attendees_filter.email %} AD.email {% endcondition %}
+          -- AND {% condition attendees.email %} AD.email {% endcondition %}
+      UNION ALL
+        SELECT
+          DISTINCT
+          id
+        FROM
+          public.events_d_o EDO
+        WHERE
+          1=1
+          AND {% condition attendees_filter.email %} EDO.pulled_from {% endcondition %}
+          -- AND {% condition attendees.email %} EDO.pulled_from {% endcondition %}
+
       ;;
   }
 
@@ -20,10 +32,11 @@ view: attendees_filter {
   }
 
   filter: email {
-    hidden: yes
+    label: "Email Of Person There"
+    description: "Allows you to filter to the events in which someone was present without impacting the attendee list"
     type: string
     suggest_dimension: attendees.email
-    view_label: "Attendees"
+    view_label: "Events"
   }
 
 }

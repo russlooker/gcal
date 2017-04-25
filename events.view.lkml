@@ -1,5 +1,6 @@
  view: events {
-   sql_table_name: public.events_d ;;
+   sql_table_name: public.events_d_o ;; #Use this for deduped/Obfuscated
+#    sql_table_name: public.events_d ;;#Use This for deduped
 
   dimension: gcal_distinct_event_id {
     primary_key: yes
@@ -34,6 +35,7 @@
   dimension: guests_can_invite_others {
     type: yesno
     sql: ${TABLE}.guests_can_invite_others ;;
+    hidden: yes
   }
 
   dimension: hangout_link {
@@ -51,6 +53,7 @@
   dimension: id {
     type: number
     sql: ${TABLE}.id ;;
+    hidden: yes
   }
 
   dimension: location {
@@ -118,18 +121,20 @@
 
   }
 
-  dimension: opportunity_id {
+  dimension: account_id {
+    hidden: yes
     type: string
-    sql: ${TABLE}.opportunity_id ;;
+    sql: ${TABLE}.account_id ;;
   }
 
   dimension: private_copy {
+    hidden: yes
     type: yesno
     sql: ${TABLE}.private_copy ;;
   }
 
   dimension: pulled_from {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: ${TABLE}.pulled_from ;;
   }
@@ -164,7 +169,9 @@
   dimension:  duration_tier {
     type: tier
     tiers: [0,30,45,60,90,120,240]
+    value_format: "# \"Mins\""
     sql: ${duration_row_level};;
+    style: integer
   }
 
 
@@ -175,12 +182,7 @@
 
   dimension: title {
     type: string
-    sql:
-      CASE
-        WHEN ${is_external} OR ${meeting_type} = 'OOO' THEN ${TABLE}.title
-        ELSE '*****'
-      END
-          ;;
+    sql: ${TABLE}.title ;;
     link: {
       label: "Go to Calendar Event"
       url: "{{htmllink._value}}"
@@ -193,13 +195,14 @@
     }
 
     link: {
-      label: "View Opportunity"
-      url: "https://looker.my.salesforce.com/{{opportunity_id._value}}"
+      label: "View Account"
+      url: "https://looker.my.salesforce.com/{{account_id._value}}"
       icon_url: "http://www.salesforce.com/favicon.ico"
     }
   }
 
   dimension: transparency {
+    hidden: yes
     type: string
     sql: ${TABLE}.transparency ;;
   }
@@ -219,6 +222,7 @@
   }
 
   dimension: visibility {
+    hidden: yes
     type: string
     sql: ${TABLE}.visibility ;;
   }
@@ -250,7 +254,7 @@
     type: sum
     sql: ${duration_row_level}*1.0/60;;
     value_format: "#0.00 \"Hrs\""
-    drill_fields: [company_name, title, meeting_type,start_time, end_time, total_duration]
+    drill_fields: [company_name, title, meeting_type,start_time, end_time, total_duration, attendees.count]
     filters: {
       field: status
       value: "-cancelled"
@@ -265,7 +269,7 @@
     type: sum
     sql: ${duration_row_level}*1.0/60;;
     value_format: "#0.00 \"Hrs\""
-    drill_fields: [company_name, title, meeting_type, start_time, end_time, total_duration]
+    drill_fields: [company_name, title, meeting_type, start_time, end_time, total_duration, attendees.count]
     filters: {
       #exclude formal cancellations
       field: status
