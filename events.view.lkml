@@ -153,6 +153,8 @@
       date,
       week,
       month,
+      month_num,
+      month_name,
       quarter,
       year
     ]
@@ -165,6 +167,24 @@
     sql: datediff(mins,${start_raw}, ${end_raw}) ;;
     value_format: "# \"Mins\""
   }
+
+  dimension: scheduled_lead_time {
+    type: number
+#     hidden: yes
+    description: "How long between the invite sent and the meeting start?"
+    sql: (datediff(mins,${created_raw}, ${start_raw})*1.0/60) ;;
+    value_format: "# \"Mins\""
+  }
+
+  measure: avg_sched_lead_time {
+    type: average
+    sql:  ${scheduled_lead_time}*1.0;;
+    drill_fields: [company_name, title, meeting_type, start_time, end_time, total_duration, attendees.count]
+    value_format: "#0.00 \"Hrs\""
+  }
+
+
+
 
   dimension:  duration_tier {
     type: tier
