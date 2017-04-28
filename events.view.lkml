@@ -1,5 +1,5 @@
  view: events {
-   sql_table_name: public.events_d_o ;; #Use this for deduped/Obfuscated
+   sql_table_name: public.events_d ;; #Use this for deduped/Obfuscated
 #    sql_table_name: public.events_d ;;#Use This for deduped
 
   dimension: gcal_distinct_event_id {
@@ -160,6 +160,85 @@
     ]
     sql: ${TABLE}.start_time ;;
   }
+
+  dimension: is_before_dtd {
+    description: "Filter this on 'yes' to compare to same period in previous days"
+    group_label: "Start Date"
+    type: yesno
+    sql:
+      (
+        (
+          EXTRACT(HOUR FROM ${start_raw}) < EXTRACT(HOUR FROM CURRENT_TIMESTAMP)
+        )
+        OR
+        (
+          EXTRACT(HOUR FROM ${start_raw}) = EXTRACT(HOUR FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(MINUTE FROM ${start_raw}) < EXTRACT(MINUTE FROM CURRENT_TIMESTAMP)
+        )
+      );;
+  }
+
+  dimension: is_before_wtd {
+    description: "Filter this on 'yes' to compare to same period in previous weeks"
+    group_label: "Start Date"
+    type: yesno
+    sql:
+      (EXTRACT(DOW FROM ${start_raw}) < EXTRACT(DOW FROM CURRENT_TIMESTAMP)
+        OR
+        (
+          EXTRACT(DOW FROM ${start_raw}) = EXTRACT(DOW FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) < EXTRACT(HOUR FROM CURRENT_TIMESTAMP)
+        )
+        OR
+        (
+          EXTRACT(DOW FROM ${start_raw}) = EXTRACT(DOW FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) <= EXTRACT(HOUR FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(MINUTE FROM ${start_raw}) < EXTRACT(MINUTE FROM CURRENT_TIMESTAMP)
+        )
+      );;
+  }
+
+  dimension: is_before_mtd {
+    description: "Filter this on 'yes' to compare to same period in previous months"
+    group_label: "Start Date"
+    type: yesno
+    sql:
+      (EXTRACT(DAY FROM ${start_raw}) < EXTRACT(DAY FROM CURRENT_TIMESTAMP)
+        OR
+        (
+          EXTRACT(DAY FROM ${start_raw}) = EXTRACT(DAY FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) < EXTRACT(HOUR FROM CURRENT_TIMESTAMP)
+        )
+        OR
+        (
+          EXTRACT(DAY FROM ${start_raw}) = EXTRACT(DAY FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) <= EXTRACT(HOUR FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(MINUTE FROM ${start_raw}) < EXTRACT(MINUTE FROM CURRENT_TIMESTAMP)
+        )
+      );;
+  }
+
+  dimension: is_before_ytd {
+    description: "Filter this on 'yes' to compare to same period in previous years"
+    group_label: "Start Date"
+    type: yesno
+    sql:
+      (EXTRACT(DOY FROM ${start_raw}) < EXTRACT(DOY FROM CURRENT_TIMESTAMP)
+        OR
+        (
+          EXTRACT(DOY FROM ${start_raw}) = EXTRACT(DOY FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) < EXTRACT(HOUR FROM CURRENT_TIMESTAMP)
+        )
+        OR
+        (
+          EXTRACT(DOY FROM ${start_raw}) = EXTRACT(DOY FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(HOUR FROM ${start_raw}) <= EXTRACT(HOUR FROM CURRENT_TIMESTAMP) AND
+          EXTRACT(MINUTE FROM ${start_raw}) < EXTRACT(MINUTE FROM CURRENT_TIMESTAMP)
+        )
+      );;
+  }
+
+
 
   dimension: duration_row_level {
     type: number
