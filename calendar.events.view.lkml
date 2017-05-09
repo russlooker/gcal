@@ -1,6 +1,25 @@
  view: events {
-   sql_table_name: public.events_d ;; #Use this for deduped/Obfuscated
+#    sql_table_name: public.events_f ;; #Use this for deduped/Obfuscated
 #    sql_table_name: public.events_d ;;#Use This for deduped
+   derived_table: {
+    distribution_style: even
+    sortkeys: ["start_time"]
+    sql_trigger_value:
+      SELECT
+        CASE WHEN EXTRACT(MIN FROM CURRENT_TIMESTAMP) > 55 THEN max(calendar_etl_instance_id)
+        ELSE (SELECT max(e.calendar_etl_instance_id) FROM ${events.SQL_TABLE_NAME} e)
+        END AS SWITCH
+      FROM
+        public.EVENTS_D
+    ;;
+    sql:
+          SELECT
+            *
+          FROM
+            public.events_d
+    ;;
+   }
+
 
   dimension: gcal_distinct_event_id {
     primary_key: yes
@@ -27,9 +46,11 @@
       week,
       month,
       quarter,
-      year
+      year,
+      minute15
     ]
     sql: ${TABLE}.end_time ;;
+    convert_tz: no
   }
 
   dimension: guests_can_invite_others {
@@ -146,6 +167,7 @@
       time,
       hour_of_day,
       minute30,
+      minute15,
       week_of_year,
       day_of_week,
       day_of_month,
@@ -159,6 +181,7 @@
       year
     ]
     sql: ${TABLE}.start_time ;;
+    convert_tz: yes
   }
 
   dimension: is_before_dtd {
@@ -299,6 +322,49 @@
       icon_url: "http://www.salesforce.com/favicon.ico"
     }
   }
+
+  # dimension: is_obfuscated {
+  #   type: string
+  #   sql: CASE
+  #           WHEN ${is_external} THEN 'No'
+  #           WHEN ${permission_filter.event_id} is not null THEN 'No'
+  #           ELSE 'Yes'
+  #         END ;;
+  # }
+#OR (${permission_filter.event_id} is not null)
+  # dimension: obfuscated_title {
+  #   type: string
+  #   sql:
+  #   CASE
+  #     WHEN ${is_obfuscated} = 'No' THEN ${TABLE}.title
+  #     ELSE MD5(${TABLE}.title || 'salt')
+  #     END
+  #     ;;
+  #   link: {
+  #     label: "Go to Calendar Event"
+  #     url: "{{htmllink._value}}"
+  #     icon_url: "http://2.bp.blogspot.com/-i4O7-MJJJmQ/VFkuulhnkQI/AAAAAAAB_ig/1H6mmPz4Dy8/s1600/calendar-logo.png"
+  #   }
+  #   link: {
+  #     label: "Go to Google Hangout"
+  #     url: "{{hangout_link._value}}"
+  #     icon_url: "http://www.brandsoftheworld.com/sites/default/files/styles/logo-thumbnail/public/112013/hangouts_0.png?itok=reYr0Z3x"
+  #   }
+
+  #   link: {
+  #     label: "View Account"
+  #     url: "https://looker.my.salesforce.com/{{account_id._value}}"
+  #     icon_url: "http://www.salesforce.com/favicon.ico"
+  #   }
+  #   html:
+  #   {% if is_obfuscated._value == 'Yes' %}
+  #     ##### Obfuscated Data #####
+  #   {% else %}
+  #     {{linked_value}}
+  #   {% endif %}
+  #   ;;
+
+  # }
 
   dimension: transparency {
     hidden: yes

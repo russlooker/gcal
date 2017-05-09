@@ -1,9 +1,32 @@
 view: attendees {
-  sql_table_name: public.attendees_d ;;
+#   sql_table_name: public.attendees_f ;;
+  derived_table: {
+    distribution_style: even
+    sortkeys: ["email"]
+    sql_trigger_value:
+        SELECT max(e.calendar_etl_instance_id) FROM ${events.SQL_TABLE_NAME} e
+    ;;
+    sql:
+    SELECT * FROM public.attendees_d
+      ;;
+  }
+
 
   dimension: accepted {
     type: string
     sql: ${TABLE}.accepted ;;
+    html:
+      {% if value == 'declined' %}
+        <div style="color: black; background-color: #dc7350; margin: 0; border-radius: 5px; text-align:center">{{ value }}</div>
+      {% elsif value == 'tentative' %}
+        <div style="color: black; background-color: #e9b404; margin: 0; border-radius: 5px; text-align:center">{{ value }}</div>
+      {% elsif value == 'accepted' %}
+        <div style="color: black; background-color: #49cec1; margin: 0; border-radius: 5px; text-align:center">{{ value }}</div>
+      {% else %}
+        <div style="color: black; background-color: #929292; margin: 0; border-radius: 5px; text-align:center">{{ value }}</div>
+      {% endif %}
+
+    ;;
   }
 
   dimension: comment {
@@ -28,6 +51,11 @@ view: attendees {
     primary_key: yes
     hidden: yes
     sql: ${event_id} || ${email} ;;
+  }
+
+  dimension: is_external {
+    type: yesno
+    sql: ${email} !~* '.*looker.*' ;;
   }
 
   dimension: optional {
@@ -82,11 +110,76 @@ view: attendees {
   measure: count {
     type: count_distinct
     sql: ${email} ;;
-    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource]
+    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource, is_external]
     filters: {
       field: email
       value: "%"
     }
-#     value_format: "\"Show The Attendees\""
   }
+  measure: accepted_count {
+    type: count_distinct
+    sql: ${email} ;;
+    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource, is_external]
+    filters: {
+      field: email
+      value: "%"
+    }
+    filters: {
+      field: accepted
+      value: "accepted"
+    }
+
+  }
+  measure: declined_count {
+    type: count_distinct
+    sql: ${email} ;;
+    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource, is_external]
+    filters: {
+      field: email
+      value: "%"
+    }
+    filters: {
+      field: accepted
+      value: "declined"
+    }
+  }
+  measure: needs_action_count {
+    type: count_distinct
+    sql: ${email} ;;
+    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource, is_external]
+    filters: {
+      field: email
+      value: "%"
+    }
+    filters: {
+      field: accepted
+      value: "needsAction"
+    }
+  }
+  measure: tentative_count {
+    type: count_distinct
+    sql: ${email} ;;
+    drill_fields: [email, room_name, accepted, comment,optional,organizer,resource, is_external]
+    filters: {
+      field: email
+      value: "%"
+    }
+    filters: {
+      field: accepted
+      value: "tentative"
+    }
+  }
+
+  measure: accept_rate {
+    type: number
+    sql: ${accepted_count}*1.0 / nullif(${count},0) ;;
+    value_format_name: percent_1
+  }
+  measure: decline_rate {
+    type: number
+    sql: ${declined_count}*1.0 / nullif(${count},0) ;;
+    value_format_name: percent_1
+  }
+
+
 }
