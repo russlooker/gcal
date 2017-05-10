@@ -1,14 +1,10 @@
  view: events {
-#    sql_table_name: public.events_f ;; #Use this for deduped/Obfuscated
-#    sql_table_name: public.events_d ;;#Use This for deduped
    derived_table: {
     distribution_style: even
     sortkeys: ["start_time"]
     sql_trigger_value:
       SELECT
-        CASE WHEN EXTRACT(MIN FROM CURRENT_TIMESTAMP) > 55 THEN max(calendar_etl_instance_id)
-        ELSE (SELECT max(e.calendar_etl_instance_id) FROM ${events.SQL_TABLE_NAME} e)
-        END AS SWITCH
+        max(calendar_etl_instance_id)
       FROM
         public.EVENTS_D
     ;;
