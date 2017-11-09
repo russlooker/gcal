@@ -4,6 +4,10 @@ connection: "thelook"
 
 explore: users {
   hidden: yes
+  join: test_ndt {
+    sql_on: ${users.age} = ${test_ndt.age} ;;
+    relationship: one_to_one
+  }
 }
 view: users {
   sql_table_name: demo_db.users ;;
@@ -23,7 +27,6 @@ view: users {
     sql: ${age} ;;
   }
 }
-explore: test_ndt {}
 view: test_ndt {
   derived_table: {
     sql_trigger_value: SELECT NOW() ;;
