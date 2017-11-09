@@ -7,7 +7,7 @@ explore: testing_users_things {
   hidden: yes
 }
 view: users {
-  sql_table_name: demo_db.users ;;
+  sql_table_name: SELECT 1 FROM demo_db.users ;;
 
   dimension: age {
     type: number
@@ -24,7 +24,31 @@ view: users {
     sql: ${age} ;;
   }
 }
-# # Select the views that should be a part of this model,
+explore: test_ndt {}
+view: test_ndt {
+  derived_table: {
+    sql_trigger_value: SELECT NOW() ;;
+    explore_source: testing_users_things {column: age { field: users.age }
+      column: created_at_year { field: users.created_at_year }
+      filters: {
+        field: users.age
+        value: ">50"
+      }
+    }
+    indexes: ["created_at_year"]
+  }
+  dimension: age {
+    type: number
+  }
+  dimension: created_at_year {
+    type: date_year
+  }
+}
+
+
+
+#
+# Select the views that should be a part of this model,
 # # and define the joins that connect them together.
 #
 # explore: order_items {
