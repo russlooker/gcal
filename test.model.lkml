@@ -2,12 +2,11 @@ connection: "thelook"
 
 
 
-explore: testing_users_things {
-  view_name: users
+explore: users {
   hidden: yes
 }
 view: users {
-  sql_table_name: SELECT 1 FROM demo_db.users ;;
+  sql_table_name: demo_db.users ;;
 
   dimension: age {
     type: number
@@ -28,7 +27,7 @@ explore: test_ndt {}
 view: test_ndt {
   derived_table: {
     sql_trigger_value: SELECT NOW() ;;
-    explore_source: testing_users_things {column: age { field: users.age }
+    explore_source: users {column: age {}
       column: created_at_year { field: users.created_at_year }
       filters: {
         field: users.age
