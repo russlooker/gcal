@@ -33,6 +33,7 @@ view: orders {
       url: "https://google.com/{{user_id._value}}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
+    tags: ["id"]
   }
 
   set: detail {
