@@ -28,11 +28,15 @@ view: orders {
   dimension: status {
     type: string
     sql: ${TABLE}.status ;;
+    label: "Status Name"
+    group_label: "Status Name Group"
+    description: "This is a description"
     link: {
       label: "Click This"
-      url: "https://google.com/{{user_id._value}}"
-      icon_url: "http://www.looker.com/favicon.ico"
+      url: "https://o.essencedigital.com/campaign/{{campaign_slug._value}}/marketbudgets/{{media_plan_id._value}}/v/published (https://o.essencedigital.com/campaign/%7B%7Bcampaign_slug._value%7D%7D/marketbudgets/%7B%7Bmedia_plan_id._value%7D%7D/v/published) "
+      icon_url: "https://o.essencedigital.com/img/logo/favicon.png"
     }
+    drill_fields: [olive_io.io_id,olive_commitline.device]
     tags: ["id"]
   }
 
