@@ -33,10 +33,10 @@ view: orders {
     description: "This is a description"
     link: {
       label: "Click This"
-      url: "https://o.essencedigital.com/campaign/{{campaign_slug._value}}/marketbudgets/{{media_plan_id._value}}/v/published (https://o.essencedigital.com/campaign/%7B%7Bcampaign_slug._value%7D%7D/marketbudgets/%7B%7Bmedia_plan_id._value%7D%7D/v/published) "
+      url: "https://o.essencedigital.com/campaign/{{id._value}}/marketbudgets/{{id._value}}/v/published (https://o.essencedigital.com/campaign/%7B%7Bcampaign_slug._value%7D%7D/marketbudgets/%7B%7Bmedia_plan_id._value%7D%7D/v/published) "
       icon_url: "https://o.essencedigital.com/img/logo/favicon.png"
     }
-    drill_fields: [olive_io.io_id,olive_commitline.device]
+    drill_fields: [user_id,created_at]
     tags: ["id"]
   }
 
