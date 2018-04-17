@@ -8,6 +8,10 @@ include: "*.dashboard"
 
 
 explore: events {
+  access_filter: {
+    field: account_id
+    user_attribute: new_name
+  }
   join: attendees {
     type: left_outer
     sql_on: ${events.id} = ${attendees.event_id} ;;
