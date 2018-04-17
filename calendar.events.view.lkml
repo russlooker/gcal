@@ -21,6 +21,11 @@
     primary_key: yes
     type: string
     sql: ${TABLE}.gcal_distinct_event_id ;;
+    link: {
+      label: "Click this"
+      url: "https://www.google.com/{{company_name._value}}"
+      icon_url: "http://www.looker.com/favicon.ico"
+    }
   }
 
   dimension: calendar_etl_instance_id {
