@@ -274,6 +274,13 @@
     value_format: "# \"Mins\""
   }
 
+  dimension: lead_time_tiers {
+    type: tier
+    tiers: [0,60,120,240,480,960,1920,3840,7680,15360,30720]
+    sql:  ${scheduled_lead_time};;
+  }
+
+
   measure: avg_sched_lead_time {
     type: average
     sql:  ${scheduled_lead_time}*1.0;;
@@ -318,49 +325,6 @@
       icon_url: "http://www.salesforce.com/favicon.ico"
     }
   }
-
-  # dimension: is_obfuscated {
-  #   type: string
-  #   sql: CASE
-  #           WHEN ${is_external} THEN 'No'
-  #           WHEN ${permission_filter.event_id} is not null THEN 'No'
-  #           ELSE 'Yes'
-  #         END ;;
-  # }
-#OR (${permission_filter.event_id} is not null)
-  # dimension: obfuscated_title {
-  #   type: string
-  #   sql:
-  #   CASE
-  #     WHEN ${is_obfuscated} = 'No' THEN ${TABLE}.title
-  #     ELSE MD5(${TABLE}.title || 'salt')
-  #     END
-  #     ;;
-  #   link: {
-  #     label: "Go to Calendar Event"
-  #     url: "{{htmllink._value}}"
-  #     icon_url: "http://2.bp.blogspot.com/-i4O7-MJJJmQ/VFkuulhnkQI/AAAAAAAB_ig/1H6mmPz4Dy8/s1600/calendar-logo.png"
-  #   }
-  #   link: {
-  #     label: "Go to Google Hangout"
-  #     url: "{{hangout_link._value}}"
-  #     icon_url: "http://www.brandsoftheworld.com/sites/default/files/styles/logo-thumbnail/public/112013/hangouts_0.png?itok=reYr0Z3x"
-  #   }
-
-  #   link: {
-  #     label: "View Account"
-  #     url: "https://looker.my.salesforce.com/{{account_id._value}}"
-  #     icon_url: "http://www.salesforce.com/favicon.ico"
-  #   }
-  #   html:
-  #   {% if is_obfuscated._value == 'Yes' %}
-  #     ##### Obfuscated Data #####
-  #   {% else %}
-  #     {{linked_value}}
-  #   {% endif %}
-  #   ;;
-
-  # }
 
   dimension: transparency {
     hidden: yes
@@ -456,6 +420,54 @@
   measure: event_count {
     type: count_distinct
     sql: ${gcal_distinct_event_id} ;;
-    drill_fields: [gcal_distinct_event_id, company_name, title, meeting_type, start_time, end_time, total_duration]
+    drill_fields: [company_name, title, meeting_type, created_minute15, start_time, end_time, total_duration, attendees.count]
   }
 }
+
+
+
+
+########## OBFUSCATION CODE ##########
+
+  # dimension: is_obfuscated {
+  #   type: string
+  #   sql: CASE
+  #           WHEN ${is_external} THEN 'No'
+  #           WHEN ${permission_filter.event_id} is not null THEN 'No'
+  #           ELSE 'Yes'
+  #         END ;;
+  # }
+#OR (${permission_filter.event_id} is not null)
+  # dimension: obfuscated_title {
+  #   type: string
+  #   sql:
+  #   CASE
+  #     WHEN ${is_obfuscated} = 'No' THEN ${TABLE}.title
+  #     ELSE MD5(${TABLE}.title || 'salt')
+  #     END
+  #     ;;
+  #   link: {
+  #     label: "Go to Calendar Event"
+  #     url: "{{htmllink._value}}"
+  #     icon_url: "http://2.bp.blogspot.com/-i4O7-MJJJmQ/VFkuulhnkQI/AAAAAAAB_ig/1H6mmPz4Dy8/s1600/calendar-logo.png"
+  #   }
+  #   link: {
+  #     label: "Go to Google Hangout"
+  #     url: "{{hangout_link._value}}"
+  #     icon_url: "http://www.brandsoftheworld.com/sites/default/files/styles/logo-thumbnail/public/112013/hangouts_0.png?itok=reYr0Z3x"
+  #   }
+
+  #   link: {
+  #     label: "View Account"
+  #     url: "https://looker.my.salesforce.com/{{account_id._value}}"
+  #     icon_url: "http://www.salesforce.com/favicon.ico"
+  #   }
+  #   html:
+  #   {% if is_obfuscated._value == 'Yes' %}
+  #     ##### Obfuscated Data #####
+  #   {% else %}
+  #     {{linked_value}}
+  #   {% endif %}
+  #   ;;
+
+  # }

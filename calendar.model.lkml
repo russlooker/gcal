@@ -1,10 +1,10 @@
-connection: "calendar"
+connection: "faa_redshift"
 
 # include all the views
 include: "*.view"
 
 # include all the dashboards
-include: "*.dashboard"
+# include: "*.dashboard"
 
 
 explore: events {
@@ -49,4 +49,38 @@ explore: ts {
     sql_on:  ${events.id} = ${attendees_filter.event_id} ;;
     relationship: one_to_many
   }
+}
+
+
+
+explore: repro {}
+
+view: repro {
+  derived_table: {
+    sql:
+      SELECT 'arnold_palmer' as drink, 10 as price UNION ALL
+      SELECT 'iced_tea', 9 UNION ALL
+      SELECT 'coke__classic', 5 UNION ALL
+      SELECT 'milk', 2 UNION ALL
+      SELECT 'water', 0
+
+    ;;
+  }
+
+  dimension: drink {
+    type: string
+    sql: ${TABLE}.drink ;;
+    link: {
+      label: "repro"
+      url: "/dashboards/3465?drink%20name={{ _filters['repro.drink'] | url_encode }}&drink%20name={{ value | url_encode }}"
+      icon_url: "https://looker.com/favicon.ico"
+    }
+  }
+
+  measure: price {
+    type: sum
+    sql: ${TABLE}.price ;;
+  }
+
+
 }
