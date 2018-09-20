@@ -72,7 +72,7 @@ view: repro {
     sql: ${TABLE}.drink ;;
     link: {
       label: "repro"
-      url: "/dashboards/3465?drink%20name={{ _filters['repro.drink'] | url_encode }}&drink%20name={{ value | url_encode }}"
+      url: "/dashboards/116?drink={{ _filters['repro.drink'] | url_encode }}&drink%20name={{ value | url_encode }}"
       icon_url: "https://looker.com/favicon.ico"
     }
   }
