@@ -95,4 +95,17 @@ view: ts {
     type: count_distinct
     sql: ${ts_date} ;;
   }
+
+  filter: test {
+    type: string
+  }
+#
+#   dimension: test_dim {
+#     type: string
+#     sql:
+#             {{_filters['ts.test']}}
+#     ;;
+#   }
+
+
 }
