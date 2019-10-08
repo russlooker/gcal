@@ -8,5 +8,6 @@ datagroup: test1 {
 
 persist_with: test1
 
-explore: events {
+explore: find_me_in_the_api {
+  from: events
 }

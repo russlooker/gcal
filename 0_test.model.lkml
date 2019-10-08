@@ -2,7 +2,7 @@ connection: "calendar"
 
 include: "test.base.lkml"
 
-explore: test2 {
+explore: find_me_inthe_api {
   hidden: yes
   extends: [test]
 }
