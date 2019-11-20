@@ -53,6 +53,8 @@ explore: ts {
   }
 }
 
+explore: pdtliquidtest {}
+
 
 
 explore: repro {}

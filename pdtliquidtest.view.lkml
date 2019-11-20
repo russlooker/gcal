@@ -3,6 +3,7 @@ view: pdtliquidtest {
     sql: select * from public.attendees_d where {% parameter pdt_param %} > 10 ;;
     indexes: ["event_id"]
     sql_trigger_value: select current_date ;;
+    distribution_style: all
   }
 
   parameter: pdt_param {
